@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#183247">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>Pipe Takeoff — Field Reference</title>
+</head>
+<body>
+<header class="topbar">
+  <div class="brandmark">PT</div>
+  <div><div class="brand">PIPE TAKEOFF</div><div class="tagline">FIELD REFERENCE & CALCULATIONS</div></div>
+  <span class="offline" id="offlineStatus">● Offline ready</span>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Find it. Measure it. Build it.</h1>
+    <p>Fitting references and takeoff tools for the pipe trades.</p>
+    <label class="searchbox"><span>⌕</span><input id="globalSearch" placeholder="Search fitting, size, manufacturer…" autocomplete="off"></label>
+  </section>
+
+  <nav class="tabs" aria-label="Main navigation">
+    <button class="tab active" data-page="library">Fitting library</button>
+    <button class="tab" data-page="calculators">Calculators</button>
+    <button class="tab" data-page="saved">My takeoffs</button>
+    <button class="tab" data-page="manage">My fittings</button>
+  </nav>
+
+  <section id="libraryPage" class="page">
+    <div class="section-head"><div><h2>Fitting library</h2><p>Filter by trade, connection, brand, style, and size.</p></div><span class="count" id="resultCount">0 fittings</span></div>
+    <div class="filters">
+      <label>Trade / material<select id="materialFilter"><option value="">All trades & materials</option><option>Carbon steel</option><option>Stainless steel</option><option>Copper</option><option>PVC</option><option>CPVC</option><option>Cast iron</option><option>Ductile iron</option><option>HDPE</option><option>Other</option></select></label>
+      <label>Connection<select id="connectionFilter"><option value="">All connection types</option><option>Butt-weld</option><option>Socket-weld</option><option>Threaded</option><option>Solder</option><option>Press</option><option>Grooved</option><option>Mechanical joint</option><option>Flanged</option><option>DWV</option></select></label>
+      <label>Manufacturer<input id="brandFilter" placeholder="e.g. Viega, Victaulic"></label>
+      <label>Style / series<input id="styleFilter" placeholder="e.g. Style 77"></label>
+      <label>Nominal size<input id="sizeFilter" placeholder='e.g. 2"'></label>
+      <label>Fitting type<select id="typeFilter"><option value="">All fitting types</option><option>90° elbow</option><option>45° elbow</option><option>22.5° elbow</option><option>Tee</option><option>Reducer</option><option>Coupling</option><option>Union</option><option>Cap</option><option>Cross</option><option>Flange</option><option>Valve</option><option>Adapter</option><option>Other</option></select></label>
+    </div>
+    <div class="notice"><strong>Measurement integrity:</strong> no generic dimensions are substituted for brand- or style-specific data. Unverified dimensions stay out of the results.</div>
+    <div id="fittingResults" class="results"></div>
+  </section>
+
+  <section id="calculatorsPage" class="page hidden">
+    <div class="section-head"><div><h2>Takeoff calculators</h2><p>Quick field calculations. Results update as you enter values.</p></div></div>
+    <div class="calc-grid">
+      <article class="panel">
+        <h3>Offset travel</h3><p class="muted">Calculate diagonal travel from run and rise.</p>
+        <label>Run <div class="input-unit"><input id="run" type="number" min="0" step="any" placeholder="0"><select id="runUnit"><option value="in">in</option><option value="mm">mm</option></select></div></label>
+        <label>Rise <div class="input-unit"><input id="rise" type="number" min="0" step="any" placeholder="0"><select id="riseUnit"><option value="in">in</option><option value="mm">mm</option></select></div></label>
+        <div class="result-box"><span>Travel</span><strong id="travelResult">—</strong></div>
+        <p class="tiny">Assumes a 90° right-triangle offset. Does not include fitting takeout.</p>
+      </article>
+      <article class="panel">
+        <h3>Cut length</h3><p class="muted">Subtract fitting allowances from face-to-face dimension.</p>
+        <label>Face-to-face dimension <div class="input-unit"><input id="face" type="number" min="0" step="any" placeholder="0"><select id="faceUnit"><option value="in">in</option><option value="mm">mm</option></select></div></label>
+        <label>Left fitting allowance <input id="leftAllowance" type="number" min="0" step="any" placeholder="0"></label>
+        <label>Right fitting allowance <input id="rightAllowance" type="number" min="0" step="any" placeholder="0"></label>
+        <div class="result-box"><span>Pipe cut length</span><strong id="cutResult">—</strong></div>
+        <p class="tiny">Enter allowances in the same unit as the face-to-face dimension. Confirm measurement reference points before cutting.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="savedPage" class="page hidden">
+    <div class="section-head"><div><h2>Job takeoffs</h2><p>Organize measurements and fitting quantities by project.</p></div></div>
+    <div class="panel"><label>New project name<input id="projectName" placeholder="e.g. Boiler room piping"></label><button class="primary" id="addProject">Create project</button></div>
+    <div id="projectList"></div>
+    <div class="panel" style="margin-top:16px"><h3>Backup your work</h3><p class="muted">Data is saved on this device in this browser. Export a backup before clearing browser data or changing phones.</p><button class="primary" id="exportData">Export JSON backup</button> <label class="file-label">Restore backup<input type="file" accept="application/json,.json" id="restoreData"></label></div>
+  </section>
+
+  <section id="managePage" class="page hidden">
+    <div class="section-head"><div><h2>My fitting measurements</h2><p>Add dimensions from your own charts. These are marked user-entered, not manufacturer-verified.</p></div></div>
+    <form id="fittingForm" class="panel">
+      <div class="filters form-filters">
+        <label>Manufacturer<input name="manufacturer" required placeholder="Viega / Victaulic / other"></label>
+        <label>Series or style<input name="style" required placeholder="ProPress / Style 77 / etc."></label>
+        <label>Material<select name="material" required><option>Copper</option><option>Carbon steel</option><option>Stainless steel</option><option>PVC</option><option>CPVC</option><option>Cast iron</option><option>Ductile iron</option><option>HDPE</option><option>Other</option></select></label>
+        <label>Connection<select name="connection" required><option>Press</option><option>Grooved</option><option>Butt-weld</option><option>Socket-weld</option><option>Threaded</option><option>Solder</option><option>Mechanical joint</option><option>Flanged</option><option>DWV</option></select></label>
+        <label>Nominal size<input name="size" required placeholder='2"'></label>
+        <label>Fitting type<select name="type" required><option>90° elbow</option><option>45° elbow</option><option>22.5° elbow</option><option>Tee</option><option>Reducer</option><option>Coupling</option><option>Union</option><option>Cap</option><option>Cross</option><option>Flange</option><option>Valve</option><option>Adapter</option><option>Other</option></select></label>
+        <label>Measurement name<input name="dimensionName" required placeholder="Center-to-end / insertion depth"></label>
+        <label>Measurement value<input name="dimension" required placeholder='2 1/2 or 2.5'></label>
+        <label>Units<select name="unit"><option value="in">Inches</option><option value="mm">Millimeters</option></select></label>
+        <label>Source / catalog<input name="source" placeholder="Chart title or URL"></label>
+        <label>Source revision<input name="revision" placeholder="Edition / date"></label>
+        <label>Notes<input name="notes" placeholder="Reference points, etc."></label>
+      </div>
+      <p class="tiny">Do not enter manufacturer-specific dimensions under the wrong product style. Confirm takeoff reference points and insertion depth separately.</p>
+      <button class="primary" type="submit">Save fitting measurement</button>
+    </form>
+  </section>
+
+  <section class="bottom-note">
+    <strong>Built for the field.</strong> Reference data will be traceable to its source, manufacturer, product series/style, and document revision.
+  </section>
+</main>
+<footer><span>PIPE TAKEOFF</span><span>Version 0.2 • Prototype</span></footer>
+<script src="app.js"></script>
+</body>
+</html>
