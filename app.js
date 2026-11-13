@@ -1,16 +1,17 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const KEY="pipe-takeoff-data-v02";
-const defaultData=()=>({fittings:[],projects:[]});
+const defaultData=()=>({fittings:[],projects:[],spacingRules:[]});
 let data;
 try {data=JSON.parse(localStorage.getItem(KEY))||defaultData();if(!Array.isArray(data.fittings)||!Array.isArray(data.projects))throw Error("Invalid data");}catch{data=defaultData()}
+if(!Array.isArray(data.spacingRules))data.spacingRules=[];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch{alert("Unable to save. Check available browser storage.")}}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}
 function uid(){return crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function number(id){const v=parseFloat($(id).value);return Number.isFinite(v)?v:null}
 function fmt(v,unit){if(!Number.isFinite(v))return "—";return `${Number(v.toFixed(3))} ${unit}`}
 function parseMeasure(s){s=String(s).trim().replace(/\s+/g," ");if(/^\d+(?:\.\d+)?$/.test(s))return Number(s);let m=s.match(/^(?:(\d+)\s+)?(\d+)\/(\d+)$/);if(!m||Number(m[3])===0)return null;return Number(m[1]||0)+Number(m[2])/Number(m[3])}
-function switchPage(page){document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.page===page));["library","calculators","saved","manage"].forEach(p=>$(p+"Page").classList.toggle("hidden",p!==page));if(page==="saved")renderProjects();if(page==="library")renderFittings()}
+function switchPage(page){document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.page===page));["library","calculators","saved","manage","spacing"].forEach(p=>$(p+"Page").classList.toggle("hidden",p!==page));if(page==="saved")renderProjects();if(page==="library")renderFittings();if(page==="spacing")renderSpacing()}
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>switchPage(t.dataset.page)));
 const filters=["globalSearch","materialFilter","connectionFilter","brandFilter","styleFilter","sizeFilter","typeFilter"];
 filters.forEach(id=>$(id).addEventListener("input",renderFittings));
@@ -31,8 +32,35 @@ document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{const p=dat
 document.querySelectorAll("[data-delete-project]").forEach(b=>b.onclick=()=>{if(confirm("Delete this project and its takeoff items?")){data.projects=data.projects.filter(x=>x.id!==b.dataset.deleteProject);save();renderProjects()}});
 document.querySelectorAll("[data-csv]").forEach(b=>b.onclick=()=>{const p=data.projects.find(x=>x.id===b.dataset.csv);const csv=s=>`"${String(s).replace(/"/g,'""')}"`;const content=[["Description","Quantity","Notes"],...p.items.map(i=>[i.desc,i.qty,i.note])].map(row=>row.map(csv).join(",")).join("\r\n");download(p.name.replace(/[^a-z0-9_-]/gi,"_")+"_takeoff.csv",content,"text/csv;charset=utf-8")})}
 function download(name,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-$("exportData").onclick=()=>download("pipe-takeoff-backup.json",JSON.stringify({version:2,...data},null,2),"application/json");
-$("restoreData").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const imported=JSON.parse(await f.text());if(!Array.isArray(imported.fittings)||!Array.isArray(imported.projects)||imported.fittings.length>10000||imported.projects.length>10000||imported.fittings.some(x=>!x.id||!x.manufacturer||!x.style||!x.dimension)||imported.projects.some(x=>!x.id||!x.name||!Array.isArray(x.items)))throw Error("Unsupported backup");if(confirm("Replace all current fitting measurements and projects with this backup?")){data={fittings:imported.fittings,projects:imported.projects};save();renderProjects();renderFittings()}}catch(err){alert("Unable to restore: "+err.message)}e.target.value=""});
+$("exportData").onclick=()=>download("pipe-takeoff-backup.json",JSON.stringify({version:3,...data},null,2),"application/json");
+$("restoreData").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const imported=JSON.parse(await f.text());if(!Array.isArray(imported.fittings)||!Array.isArray(imported.projects)||imported.fittings.length>10000||imported.projects.length>10000||imported.fittings.some(x=>!x.id||!x.manufacturer||!x.style||!x.dimension)||imported.projects.some(x=>!x.id||!x.name||!Array.isArray(x.items)))throw Error("Unsupported backup");if(confirm("Replace all current fitting measurements and projects with this backup?")){data={fittings:imported.fittings,projects:imported.projects,spacingRules:Array.isArray(imported.spacingRules)?imported.spacingRules:[]};save();renderProjects();renderFittings()}}catch(err){alert("Unable to restore: "+err.message)}e.target.value=""});
+
+// Press spacing rules are explicitly user-entered, never claimed to be manufacturer-verified.
+const spacingKey=()=>{const [manufacturer,style]=$("spacingSystem").value.split("|");return {manufacturer,style,size:$("spacingSize").value}}
+function renderSpacing(){
+ const key=spacingKey();const rule=data.spacingRules.find(r=>r.manufacturer===key.manufacturer&&r.style===key.style&&r.size===key.size);
+ $("requiredGap").textContent=rule?fmt(rule.mm/25.4,"in")+" / "+fmt(rule.mm,"mm"):"Not loaded";
+ $("spacingSource").textContent=rule?"USER-ENTERED, NOT VERIFIED • Source: "+rule.source+(rule.revision?" • "+rule.revision:"")+(rule.toolNote?" • Tool note: "+rule.toolNote:""):"No verified manufacturer rule loaded for this selection.";
+ const raw=$("actualGap").value.trim(),actual=parseMeasure(raw),unit=$("spacingUnit").value;
+ let msg="Enter an actual exposed pipe gap to check.";
+ if(!rule)msg="No rule loaded for this exact brand, series and size. Cannot determine compliance.";
+ else if(!raw)msg="Enter an actual exposed pipe gap to check.";
+ else if(actual===null||actual<0)msg="Enter a valid nonnegative measurement (for example 3/4).";
+ else {const mm=actual*(unit==="in"?25.4:1);msg=mm+1e-7>=rule.mm?"PASS against your saved rule only. Confirm manufacturer instructions and tool clearance before installation.":"BELOW your saved minimum exposed gap. Do not proceed without checking the manufacturer's instructions."}
+ $("spacingVerdict").textContent=msg;
+ $("spacingRulesList").innerHTML=data.spacingRules.length?data.spacingRules.map(r=>`<div class="spacing-row"><strong>${esc(r.manufacturer)} — ${esc(r.style)} • ${esc(r.size)}&quot;</strong><span>${esc(fmt(r.mm/25.4,"in"))} minimum • User-entered</span><button class="primary danger" data-remove-spacing="${esc(r.id)}">Delete</button></div>`).join(""):"<p class='muted'>No saved spacing rules yet.</p>";
+ document.querySelectorAll("[data-remove-spacing]").forEach(b=>b.onclick=()=>{if(confirm("Delete this spacing rule?")){data.spacingRules=data.spacingRules.filter(r=>r.id!==b.dataset.removeSpacing);save();renderSpacing()}});
+}
+["spacingSystem","spacingSize","actualGap","spacingUnit"].forEach(id=>$(id).addEventListener("input",renderSpacing));
+$("spacingRuleForm").addEventListener("submit",e=>{
+ e.preventDefault();const fields=Object.fromEntries(new FormData(e.currentTarget));const gap=parseMeasure(fields.gap);
+ if(gap===null||gap<0){alert("Enter a valid nonnegative minimum gap.");return}
+ if(!fields.source.trim()){alert("Provide the source document.");return}
+ const key=spacingKey();const mm=gap*(fields.unit==="in"?25.4:1);
+ data.spacingRules=data.spacingRules.filter(r=>!(r.manufacturer===key.manufacturer&&r.style===key.style&&r.size===key.size));
+ data.spacingRules.push({...key,mm,source:fields.source.trim(),revision:fields.revision.trim(),toolNote:fields.toolNote.trim(),id:uid(),status:"user-entered"});save();e.currentTarget.reset();renderSpacing();
+});
+
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
 function status(){$("offlineStatus").textContent=navigator.onLine?"● Offline ready":"● Offline mode"}
 window.addEventListener("online",status);window.addEventListener("offline",status);status();renderFittings();

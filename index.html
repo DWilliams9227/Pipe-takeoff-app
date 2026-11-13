@@ -26,7 +26,7 @@
     <button class="tab active" data-page="library">Fitting library</button>
     <button class="tab" data-page="calculators">Calculators</button>
     <button class="tab" data-page="saved">My takeoffs</button>
-    <button class="tab" data-page="manage">My fittings</button>
+    <button class="tab" data-page="manage">My fittings</button><button class="tab" data-page="spacing">Press spacing</button>
   </nav>
 
   <section id="libraryPage" class="page">
@@ -93,11 +93,41 @@
     </form>
   </section>
 
+
+  <section id="spacingPage" class="page hidden">
+    <div class="section-head"><div><h2>Press fitting spacing</h2><p>Check adjacent press fitting clearances by manufacturer, series and size.</p></div></div>
+    <div class="notice"><strong>Safety note:</strong> Minimum exposed pipe gap is not the same as minimum pipe cut length or press tool clearance. Enter values from the exact manufacturer installation instructions; user-entered rules are not independently verified.</div>
+    <div class="calc-grid">
+      <article class="panel">
+        <h3>Check a proposed gap</h3>
+        <label>Press system<select id="spacingSystem"><option value="Viega|ProPress">Viega — ProPress</option><option value="NIBCO|Press System">NIBCO — Press System</option></select></label>
+        <label>Nominal size<select id="spacingSize"><option>1/2</option><option>3/4</option><option>1</option><option>1 1/4</option><option>1 1/2</option><option selected>2</option><option>2 1/2</option><option>3</option><option>4</option></select></label>
+        <label>Actual exposed pipe gap <div class="input-unit"><input id="actualGap" inputmode="decimal" placeholder="e.g. 3/4 or 0.75"><select id="spacingUnit"><option value="in">in</option><option value="mm">mm</option></select></div></label>
+        <div class="result-box"><span>Minimum exposed gap</span><strong id="requiredGap">Not loaded</strong></div>
+        <div id="spacingVerdict" class="notice" role="status">Choose a system and enter a measured gap.</div>
+        <p class="tiny" id="spacingSource">No verified manufacturer rule loaded for this selection.</p>
+      </article>
+      <article class="panel">
+        <h3>Add a source-backed spacing rule</h3>
+        <p class="muted">For now, enter a value from your manufacturer chart. It will be labeled user-entered until independently checked.</p>
+        <form id="spacingRuleForm">
+          <label>Minimum exposed pipe gap <input name="gap" required placeholder="e.g. 5/8 or 0.625" inputmode="decimal"></label>
+          <label>Measurement units<select name="unit"><option value="in">Inches</option><option value="mm">Millimeters</option></select></label>
+          <label>Manufacturer document / URL<input name="source" required placeholder="Installation manual or URL"></label>
+          <label>Document revision / date<input name="revision" placeholder="Revision or edition"></label>
+          <label>Tool / jaw clearance note<input name="toolNote" placeholder="Check pressing tool access separately"></label>
+          <button class="primary" type="submit">Save rule for selected system & size</button>
+        </form>
+        <p class="tiny">Rule is saved locally on this device. Export a backup under My takeoffs.</p>
+      </article>
+    </div>
+    <div class="panel" style="margin-top:16px"><h3>Saved spacing rules</h3><div id="spacingRulesList"></div></div>
+  </section>
   <section class="bottom-note">
     <strong>Built for the field.</strong> Reference data will be traceable to its source, manufacturer, product series/style, and document revision.
   </section>
 </main>
-<footer><span>PIPE TAKEOFF</span><span>Version 0.2 • Prototype</span></footer>
+<footer><span>PIPE TAKEOFF</span><span>Version 0.3 • Prototype</span></footer>
 <script src="app.js"></script>
 </body>
 </html>

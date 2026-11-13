@@ -1,20 +1,13 @@
-# Pipe Takeoff — Version 0.2 prototype
+# Pipe Takeoff 0.3 — phone-first web app
 
-This is a working mobile-friendly web app prototype, **not an Android APK**.
+Adds a **Press spacing** tab for Viega ProPress and NIBCO Press System, with separate rules by nominal pipe size. Users can enter manufacturer-source minimum exposed gaps, save them locally, and compare proposed exposed pipe spacing. All rules remain **user-entered/unverified**; no manufacturer data is invented. Press-tool clearance and pipe insertion depths are separate requirements.
 
-## New in 0.2
-- Add your own fitting measurement records (manufacturer, style, material, size, dimension, source).
-- Filter and delete saved measurements. All user-entered measurements remain labeled **not verified**.
-- Create job projects, add fitting descriptions/quantities/notes, export CSV.
-- Export and restore JSON backups of projects and fitting records.
-- Existing travel and cut-length calculators, with manual allowances.
-- Offline app shell via service worker after first load from HTTPS/localhost.
+Retains Version 0.2 fitting measurements, takeoffs, calculators and JSON backup/restore. The existing localStorage key remains unchanged to preserve saved data when updating the same GitHub Pages site.
 
-## How to run
-Extract the ZIP, then host the directory using HTTPS or `python -m http.server 8000` and open the address in a browser. Directly opening `index.html` may work for calculations but will not enable service-worker offline caching.
+## Update GitHub Pages from Android
 
-## Important
-Data lives in browser localStorage on that device and browser. Clearing browser data may erase it. Export backups frequently. No manufacturer measurements are bundled or verified yet. Cut-length calculations require matching reference points and manually entered allowances.
+Extract the ZIP. Upload the six files in this folder (`index.html`, `app.js`, `styles.css`, `manifest.webmanifest`, `service-worker.js`, `README.md`) to the **root** of your existing GitHub repository, replacing existing files. Do not upload the ZIP itself or the enclosing folder. Commit changes and wait for Pages deployment. Reload the live app; if an older version persists, close and reopen it or clear only the site's cache (avoid clearing site storage unless you've exported a backup).
 
-## Next
-Add official source-verified manufacturer fitting catalogs, dimensional diagrams, fractional input in calculators, fitting-to-project linking, and Android packaging.
+## Safety
+
+Do not rely on user-entered spacing rules for installation compliance until checked against the current manufacturer's instructions for exact product line, nominal size, pipe material and pressing tool. No verified manufacturer spacing values are shipped in this release.
