@@ -34,12 +34,12 @@
     <div class="filters">
       <label>Trade / material<select id="materialFilter"><option value="">All trades & materials</option><option>Carbon steel</option><option>Stainless steel</option><option>Copper</option><option>PVC</option><option>CPVC</option><option>Cast iron</option><option>Ductile iron</option><option>HDPE</option><option>Other</option></select></label>
       <label>Connection<select id="connectionFilter"><option value="">All connection types</option><option>Butt-weld</option><option>Socket-weld</option><option>Threaded</option><option>Solder</option><option>Press</option><option>Grooved</option><option>Mechanical joint</option><option>Flanged</option><option>DWV</option></select></label>
-      <label>Manufacturer<input id="brandFilter" placeholder="e.g. Viega, Victaulic"></label>
-      <label>Style / series<input id="styleFilter" placeholder="e.g. Style 77"></label>
+      <label>Manufacturer<select id="brandFilter"><option value="">All manufacturers</option></select></label>
+      <label>Style / series<select id="styleFilter"><option value="">All styles</option></select></label>
       <label>Nominal size<input id="sizeFilter" placeholder='e.g. 2"'></label>
       <label>Fitting type<select id="typeFilter"><option value="">All fitting types</option><option>90° elbow</option><option>45° elbow</option><option>22.5° elbow</option><option>Tee</option><option>Reducer</option><option>Coupling</option><option>Union</option><option>Cap</option><option>Cross</option><option>Flange</option><option>Valve</option><option>Adapter</option><option>Other</option></select></label>
     </div>
-    <div class="notice"><strong>Measurement integrity:</strong> no generic dimensions are substituted for brand- or style-specific data. Unverified dimensions stay out of the results.</div>
+    <div class="notice"><strong>Measurement integrity:</strong> NIBCO copper press joint spacing is loaded from manufacturer documentation. Fitting takeoff dimensions are not preloaded. User entries are labeled separately.</div>
     <div id="fittingResults" class="results"></div>
   </section>
 
@@ -75,8 +75,8 @@
     <div class="section-head"><div><h2>My fitting measurements</h2><p>Add dimensions from your own charts. These are marked user-entered, not manufacturer-verified.</p></div></div>
     <form id="fittingForm" class="panel">
       <div class="filters form-filters">
-        <label>Manufacturer<input name="manufacturer" required placeholder="Viega / Victaulic / other"></label>
-        <label>Series or style<input name="style" required placeholder="ProPress / Style 77 / etc."></label>
+        <label>Manufacturer<select name="manufacturer" required></select></label>
+        <label>Series or style<select name="style" required></select></label>
         <label>Material<select name="material" required><option>Copper</option><option>Carbon steel</option><option>Stainless steel</option><option>PVC</option><option>CPVC</option><option>Cast iron</option><option>Ductile iron</option><option>HDPE</option><option>Other</option></select></label>
         <label>Connection<select name="connection" required><option>Press</option><option>Grooved</option><option>Butt-weld</option><option>Socket-weld</option><option>Threaded</option><option>Solder</option><option>Mechanical joint</option><option>Flanged</option><option>DWV</option></select></label>
         <label>Nominal size<input name="size" required placeholder='2"'></label>
@@ -127,7 +127,7 @@
     <strong>Built for the field.</strong> Reference data will be traceable to its source, manufacturer, product series/style, and document revision.
   </section>
 </main>
-<footer><span>PIPE TAKEOFF</span><span>Version 0.4 • Prototype</span></footer>
+<footer><span>PIPE TAKEOFF</span><span>Version 0.5 • Prototype</span></footer>
 <script src="dependent-menus.js"></script>
 <script src="app.js"></script>
 </body>

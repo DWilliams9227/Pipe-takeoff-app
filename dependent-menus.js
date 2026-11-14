@@ -53,29 +53,27 @@ function populate(select,items,allLabel,retain){
   if(prev && !items.includes(prev))select.add(new Option(prev+" (existing/custom)",prev));
   if(prev && [...select.options].some(o=>o.value===prev))select.value=prev;
 }
+const BRAND_OPTIONS={"Copper|Press":["Viega","NIBCO","Apollo","Mueller","Other / custom"],"Stainless steel|Press":["Viega","NIBCO","Victaulic","Other / custom"],"Carbon steel|Grooved":["Victaulic","Shurjoint","Gruvlok","Other / custom"],"Carbon steel|Press":["Viega","Victaulic","Other / custom"]};
+const SERIES_OPTIONS={"Copper|Press|Viega":["ProPress"],"Copper|Press|NIBCO":["Press System"],"Stainless steel|Press|Viega":["ProPress Stainless"],"Carbon steel|Press|Viega":["MegaPress"],"Carbon steel|Grooved|Victaulic":["Style 07","Style 77","Style 741","Other / custom"]};
 function setupDependentMenus(material,connection,type,brand,style,all){
-  const change=()=>{
-    const mat=material.value;
-    const connections=mat?(MATERIAL_CONNECTIONS[mat]||MATERIAL_CONNECTIONS.Other):[...new Set(Object.values(MATERIAL_CONNECTIONS).flat())];
-    populate(connection,[...connections,"Other"],all?"All connection types":null,true);
-    const types=connection.value?(CONNECTION_TYPES[connection.value]||COMMON_TYPES):COMMON_TYPES;
-    populate(type,[...types,"Other"],all?"All fitting types":null,true);
-    if(brand){const names=SUGGESTED_BRANDS[mat+"|"+connection.value]||[];brand.placeholder=names.length?"e.g. "+names.join(", "):"Manufacturer (optional search)";}
-    if(style){const key=(brand?.value||"").trim()+"|"+connection.value;const styles=SUGGESTED_STYLES[key]||[];style.placeholder=styles.length?"e.g. "+styles.join(", "):"Series / style (as labeled by manufacturer)";}
-  };
-  material.addEventListener("change",()=>{
-    // Material changes clear dependent selections rather than carrying an irrelevant option.
-    connection.value="";change();connection.dispatchEvent(new Event("input",{bubbles:true}));
-  });
-  connection.addEventListener("change",()=>{type.value="";change();connection.dispatchEvent(new Event("input",{bubbles:true}))});
-  brand?.addEventListener("input",change);
-  change();
+ const refresh=(level)=>{
+ const mat=material.value, connections=mat?(MATERIAL_CONNECTIONS[mat]||MATERIAL_CONNECTIONS.Other):[...new Set(Object.values(MATERIAL_CONNECTIONS).flat())];
+ if(level<=1)populate(connection,[...connections,"Other"],all?"All connection types":null,level!==0);
+ const conn=connection.value;
+ if(level<=2)populate(type,conn?(CONNECTION_TYPES[conn]||COMMON_TYPES):COMMON_TYPES,all?"All fitting types":null,level>1);
+ const brands=BRAND_OPTIONS[mat+"|"+conn]||SUGGESTED_BRANDS[mat+"|"+conn]||["Other / custom"];
+ if(level<=3)populate(brand,brands,all?"All manufacturers":null,level>2);
+ const styles=SERIES_OPTIONS[[mat,conn,brand.value].join("|")]||SUGGESTED_STYLES[brand.value+"|"+conn]||["Other / custom"];
+ if(level<=4)populate(style,styles,all?"All styles":null,level>3);
+ };
+ material.addEventListener("change",()=>{refresh(0);connection.dispatchEvent(new Event("input",{bubbles:true}))});
+ connection.addEventListener("change",()=>{refresh(2);connection.dispatchEvent(new Event("input",{bubbles:true}))});
+ brand.addEventListener("change",()=>{refresh(4);brand.dispatchEvent(new Event("input",{bubbles:true}))});
+ refresh(0);
 }
 document.addEventListener("DOMContentLoaded",()=>{
-  const byId=id=>document.getElementById(id);
-  setupDependentMenus(byId("materialFilter"),byId("connectionFilter"),byId("typeFilter"),byId("brandFilter"),byId("styleFilter"),true);
-  const form=byId("fittingForm");
-  setupDependentMenus(form.elements.material,form.elements.connection,form.elements.type,form.elements.manufacturer,form.elements.style,false);
-  // Restore valid first options after form reset.
-  form.addEventListener("reset",()=>setTimeout(()=>form.elements.material.dispatchEvent(new Event("change")),0));
+ const byId=id=>document.getElementById(id);
+ setupDependentMenus(byId("materialFilter"),byId("connectionFilter"),byId("typeFilter"),byId("brandFilter"),byId("styleFilter"),true);
+ const form=byId("fittingForm");setupDependentMenus(form.elements.material,form.elements.connection,form.elements.type,form.elements.manufacturer,form.elements.style,false);
+ form.addEventListener("reset",()=>setTimeout(()=>form.elements.material.dispatchEvent(new Event("change")),0));
 });
