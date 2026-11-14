@@ -39,7 +39,7 @@
       <label>Nominal size<input id="sizeFilter" placeholder='e.g. 2"'></label>
       <label>Fitting type<select id="typeFilter"><option value="">All fitting types</option><option>90° elbow</option><option>45° elbow</option><option>22.5° elbow</option><option>Tee</option><option>Reducer</option><option>Coupling</option><option>Union</option><option>Cap</option><option>Cross</option><option>Flange</option><option>Valve</option><option>Adapter</option><option>Other</option></select></label>
     </div>
-    <div class="notice"><strong>Measurement integrity:</strong> NIBCO copper press joint spacing is loaded from manufacturer documentation. Fitting takeoff dimensions are not preloaded. User entries are labeled separately.</div>
+    <div class="notice"><strong>Measurement integrity:</strong> NIBCO copper press joint spacing is loaded from manufacturer documentation. NIBCO PC607 family catalog items and part numbers are preloaded. Fitting takeoff dimensions still require drawing verification. User entries are labeled separately.</div>
     <div id="fittingResults" class="results"></div>
   </section>
 
@@ -127,8 +127,9 @@
     <strong>Built for the field.</strong> Reference data will be traceable to its source, manufacturer, product series/style, and document revision.
   </section>
 </main>
-<footer><span>PIPE TAKEOFF</span><span>Version 0.5 • Prototype</span></footer>
+<footer><span>PIPE TAKEOFF</span><span>Version 0.6 • Prototype</span></footer>
 <script src="dependent-menus.js"></script>
+<script src="manufacturer-catalog.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
