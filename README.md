@@ -11,3 +11,6 @@ Extract the ZIP. Upload the six files in this folder (`index.html`, `app.js`, `s
 ## Safety
 
 Do not rely on user-entered spacing rules for installation compliance until checked against the current manufacturer's instructions for exact product line, nominal size, pipe material and pressing tool. No verified manufacturer spacing values are shipped in this release.
+
+## Version 0.4
+Material-dependent connection and fitting-type dropdowns for both library filters and custom fitting entry. Manufacturer and style input placeholders are contextual suggestions, not verified compatibility lists. Existing local storage remains unchanged.
